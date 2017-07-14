@@ -1,4 +1,5 @@
 # !/usr/bin/python
+import os.path
 from yahoo_finance import Share
 
 def menu():
@@ -20,8 +21,17 @@ def menu():
     options[selection]()
 
 def import_tickers():
-    """import tickers from text file in working directory"""
-    print("Importing Tickers")
+    """import tickers from tickers.txt in working directory"""
+    if os.path.isfile('tickers.txt') == True:
+        file = open('tickers.txt', 'r')
+        values = file.read()
+        print values
+        print("import successful")
+        file.close()
+        return values
+    else:
+        print("no text file found")
+
 
 def manual_tickers():
     """manually enter tickers"""

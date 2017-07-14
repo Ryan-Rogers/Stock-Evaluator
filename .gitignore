@@ -1,0 +1,9 @@
+Include
+Lib
+Scripts
+tcl
+stock
+*.json
+*.log
+.idea*
+*.pyc

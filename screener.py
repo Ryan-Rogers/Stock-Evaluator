@@ -1,6 +1,7 @@
 # !/usr/bin/python
 import os.path
 from yahoo_finance import Share
+ticker_list = []
 
 def menu():
     """ show menu """
@@ -23,27 +24,36 @@ def menu():
 
 def import_tickers():
     """import tickers from tickers.txt in working directory"""
+    global ticker_list
     if os.path.isfile('tickers.txt') == True:
         with open('tickers.txt') as f:
-            content = f.readlines()
-        content = [x.strip() for x in content]
-        print content
+            ticker_list = f.readlines()
+        ticker_list = [x.strip() for x in ticker_list]
+        print ticker_list
         print("import successful")
         f.close()
-        return content
+        #return content
     else:
         print("no text file found")
 
 def manual_tickers():
     """manually enter tickers"""
+    global ticker_list
+    ticker_list.append(raw_input('Enter a stock ticker : '))
     print("Enter Tickers")
 
 def run_analysis():
     """run analysis on tickers"""
-    yahoo = Share('aapl')
-    print yahoo.get_open()
-    print yahoo.get_price()
-    print yahoo.get_trade_datetime()
+    global ticker_list
+    for x in ticker_list:
+        yahoo = Share(x)
+        print(5 * '-----')
+        print(yahoo.get_name())
+        print(yahoo.get_open())
+        print(yahoo.get_price())
+        print(yahoo.get_trade_datetime())
+        print(5 * '-----')
+        print('\n')
 
 def exit_program():
     """exit program"""

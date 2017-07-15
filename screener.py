@@ -42,7 +42,7 @@ def manual_tickers():
     """manually enter tickers"""
     global ticker_list
     ticker_list.append(raw_input('Enter a stock ticker : '))
-    print("Enter Tickers")
+    print("Ticker Entry Successful")
 
 def run_analysis():
     """run analysis on tickers"""
@@ -58,29 +58,33 @@ def run_analysis():
         print('\n')
 
 def andrews_algo():
-    """run analysis on tickers"""
+    """various metrics for a given ticker"""
     global ticker_list
     for x in ticker_list:
         yahoo = Share(x)
         print(5 * '-----')
         print(yahoo.get_name())
+        print("Current Price: " + str(yahoo.get_price()))
         dollar_volume = float(yahoo.get_price())*float(yahoo.get_volume())
         if dollar_volume > 20000000.0:
-            print("Good Trading Liquidity, dollar volume: $" + str(dollar_volume))
+            print("High Trading Liquidity, dollar volume: $" + str(dollar_volume)) #larger dollar volume = more momentum
         else:
-            print("Bad Trading Liquidity, dollar volume: $" + str(dollar_volume))
-        peg = float(yahoo.get_price_earnings_growth_ratio())
+            print("Low Trading Liquidity, dollar volume: $" + str(dollar_volume))
+        peg = float(yahoo.get_price_earnings_growth_ratio()) #PEG is apparently inaccurate need to implement checks/also check conditional logic
         if peg > 1.5:
             print("Undervalued, Large Growth Potential, PEG ratio: " + str(peg))
         elif peg >= 1.0 and peg < 1.4:
-            print ("Reasonably Valued, Low Growth Potential, PEG ratio: " + str(peg))
+            print ("Fairly Priced, Low Growth Potential, PEG ratio: " + str(peg))
         elif peg < 1:
             print ("Overvalued, High Risk Potential, PEG ratio: " + str(peg))
 
-        
         #need ROE, increasing ROE signals regular profit generation
 
-        # need to get beta value to determine volatility
+        #need to get beta value to determine volatility
+
+        #actual EPS vs next quarter estimated EPS - predict imminent stock jump or crash
+
+        #find the formula to calculate future theoretical earnings
 
         # market_cap = float(yahoo.get_market_cap())
         # if market_cap > 200000000000.0:
@@ -104,5 +108,8 @@ def exit_program():
     exit()
 
 if __name__ == '__main__':
+    # yahoo = Share('OHI')
+    # print(yahoo.get_earnings_share())
+    # print(yahoo.get_EPS_estimate_next_quarter())
     while True:
         menu()

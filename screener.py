@@ -12,15 +12,17 @@ def menu():
     print ("1. Import Tickers (tickers.txt)")
     print ("2. Manual Input")
     print ("3. Run Analysis")
-    print ("4. Exit program")
+    print ("4. Andrew's Algo")
+    print ("5. Exit Program")
     print (30 * '-')
-    try:
-        selection = int(raw_input('Enter your choice [1-4] : '))
-        options = {1: import_tickers, 2: manual_tickers, 3: run_analysis, 4: exit_program}
-        options[selection]()
-    except ValueError:
-        print("Please enter only integers please!")
-        exit()
+    #try:
+    selection = int(raw_input('Enter your choice [1-5] : '))
+    options = {1: import_tickers, 2: manual_tickers, 3: run_analysis, 4: andrews_algo, 5: exit_program}
+    options[selection]()
+    #except ValueError:
+    #    print("Please enter only integers please!")
+    #    exit()
+
 
 def import_tickers():
     """import tickers from tickers.txt in working directory"""
@@ -52,6 +54,47 @@ def run_analysis():
         print(yahoo.get_open())
         print(yahoo.get_price())
         print(yahoo.get_trade_datetime())
+        print(5 * '-----')
+        print('\n')
+
+def andrews_algo():
+    """run analysis on tickers"""
+    global ticker_list
+    for x in ticker_list:
+        yahoo = Share(x)
+        print(5 * '-----')
+        print(yahoo.get_name())
+        dollar_volume = float(yahoo.get_price())*float(yahoo.get_volume())
+        if dollar_volume > 20000000.0:
+            print("Good Trading Liquidity, dollar volume: $" + str(dollar_volume))
+        else:
+            print("Bad Trading Liquidity, dollar volume: $" + str(dollar_volume))
+        peg = float(yahoo.get_price_earnings_growth_ratio())
+        if peg > 1.5:
+            print("Undervalued, Large Growth Potential, PEG ratio: " + str(peg))
+        elif peg >= 1.0 and peg < 1.4:
+            print ("Reasonably Valued, Low Growth Potential, PEG ratio: " + str(peg))
+        elif peg < 1:
+            print ("Overvalued, High Risk Potential, PEG ratio: " + str(peg))
+
+        
+        #need ROE, increasing ROE signals regular profit generation
+
+        # need to get beta value to determine volatility
+
+        # market_cap = float(yahoo.get_market_cap())
+        # if market_cap > 200000000000.0:
+        #     print("Mega Cap, Market Capitalization: " + str(market_cap))
+        # elif market_cap > 10000000000.0 and market_cap < 200000000000.0:
+        #     print("Large Cap, Market Capitalization: " + str(market_cap))
+        # elif market_cap > 2000000000.0 and market_cap < 10000000000.0:
+        #     print("Mid Cap, Market Capitalization: " + str(market_cap))
+        # elif market_cap > 300000000.0 and market_cap < 2000000000.0:
+        #     print("Small Cap, Market Capitalization: " + str(market_cap))
+        # elif market_cap > 50000000.0 and market_cap < 300000000.0:
+        #     print("Micro Cap, Market Capitalization: " + str(market_cap))
+        # elif market_cap < 50000000.0:
+        #     print("Nano Cap, Market Capitalization: " + str(market_cap))
         print(5 * '-----')
         print('\n')
 

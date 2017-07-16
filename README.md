@@ -32,6 +32,7 @@ TODO: Write history
 ## Credits
 
 Andrew Johnson
+Ryan Rogers
 
 ## License
 

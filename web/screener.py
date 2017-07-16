@@ -1,115 +1,169 @@
 # !/usr/bin/python
 import os.path
 from yahoo_finance import Share
-ticker_list = []
+from time import sleep
 
-def menu():
-    """ show menu """
-    print ('\n')
-    print (30 * '-')
-    print ("   M A I N - M E N U")
-    print (30 * '-')
-    print ("1. Import Tickers (tickers.txt)")
-    print ("2. Manual Input")
-    print ("3. Run Analysis")
-    print ("4. Andrew's Algo")
-    print ("5. Exit Program")
-    print (30 * '-')
-    #try:
-    selection = int(raw_input('Enter your choice [1-5] : '))
-    options = {1: import_tickers, 2: manual_tickers, 3: run_analysis, 4: andrews_algo, 5: exit_program}
-    options[selection]()
-    #except ValueError:
-    #    print("Please enter only integers please!")
-    #    exit()
+ticker_list = list()
+line_separator = '\n' + (26 * '-')
 
 
 def import_tickers():
-    """import tickers from tickers.txt in working directory"""
+    """
+    Imports the tickers from tickers.txt in working directory
+    :return:
+    """
     global ticker_list
-    if os.path.isfile('tickers.txt') == True:
-        with open('tickers.txt') as f:
-            ticker_list = f.readlines()
-        ticker_list = [x.strip() for x in ticker_list]
-        print ticker_list
+
+    if not os.path.isfile('tickers.txt'):
+        print("No text file found")
+        print("Create a 'tickers.txt' in this directory1")
+        return
+
+    with open('tickers.txt') as tickers_file:
+        tickers = tickers_file.readlines()
+        tickers = [ticker.strip() for ticker in tickers]
+
+        print tickers
         print("import successful")
-        f.close()
-        #return content
-    else:
-        print("no text file found")
+
 
 def manual_tickers():
-    """manually enter tickers"""
+    """
+    Manually add a new ticker
+    :return:
+    """
     global ticker_list
     ticker_list.append(raw_input('Enter a stock ticker : '))
     print("Ticker Entry Successful")
 
+
 def run_analysis():
-    """run analysis on tickers"""
+    """
+    Run analysis on the current global ticker list
+    :return:
+    """
     global ticker_list
-    for x in ticker_list:
-        yahoo = Share(x)
-        print(5 * '-----')
-        print(yahoo.get_name())
-        print(yahoo.get_open())
-        print(yahoo.get_price())
-        print(yahoo.get_trade_datetime())
-        print(5 * '-----')
-        print('\n')
+
+    if len(ticker_list) == 0:
+        print("No stocks in current ticker list")
+        return
+
+    for ticker in ticker_list:
+        stock = Share(ticker)
+
+        print(line_separator)
+        print("Name: " + str(stock.get_name()))
+        print("Open: " + str(stock.get_open()))
+        print("Price: " + str(stock.get_price()))
+        # print("Time :" + str(stock.get_trade_datetime()))
+        # print("Earnings Share :" + str(stock.get_earnings_share()))
+        # print("EPS Estimate :" + str(stock.get_EPS_estimate_next_quarter()))
+        print(line_separator)
+
 
 def andrews_algo():
-    """various metrics for a given ticker"""
+    """
+    Various metrics for a given ticker
+    :param tickers:
+    :return:
+    """
     global ticker_list
-    for x in ticker_list:
-        yahoo = Share(x)
-        print(5 * '-----')
-        print(yahoo.get_name())
-        print("Current Price: " + str(yahoo.get_price()))
-        dollar_volume = float(yahoo.get_price())*float(yahoo.get_volume())
+
+    for ticker in ticker_list:
+        stock = Share(ticker)
+
+        print(line_separator)
+        print(stock.get_name())
+        print("Current Price: " + str(stock.get_price()))
+
+        # Dollar volume == momentum
+        dollar_volume = float(stock.get_price()) * float(stock.get_volume())
         if dollar_volume > 20000000.0:
-            print("High Trading Liquidity, dollar volume: $" + str(dollar_volume)) #larger dollar volume = more momentum
+            print("High Trading Liquidity, dollar volume: " + num_to_short_text(dollar_volume))
         else:
-            print("Low Trading Liquidity, dollar volume: $" + str(dollar_volume))
-        peg = float(yahoo.get_price_earnings_growth_ratio()) #PEG is apparently inaccurate need to implement checks/also check conditional logic
+            print("Low Trading Liquidity, dollar volume: " + num_to_short_text(dollar_volume))
+
+        # PEG is apparently inaccurate need to implement checks/also check conditional logic
+        peg = float(stock.get_price_earnings_growth_ratio())
         if peg > 1.5:
             print("Undervalued, Large Growth Potential, PEG ratio: " + str(peg))
-        elif peg >= 1.0 and peg < 1.4:
-            print ("Fairly Priced, Low Growth Potential, PEG ratio: " + str(peg))
         elif peg < 1:
-            print ("Overvalued, High Risk Potential, PEG ratio: " + str(peg))
+            print("Overvalued, High Risk Potential, PEG ratio: " + str(peg))
+        else:
+            print("Fairly Priced, Low Growth Potential, PEG ratio: " + str(peg))
 
-        #need ROE, increasing ROE signals regular profit generation
+        # TODO: ROE (increasing ROE signals regular profit generation)
+        # TODO: Beta value to determine volatility
+        # TODO: Actual EPS vs next quarter estimated EPS (to predict imminent stock jump or crash)
+        # TODO: Formula to calculate future theoretical earnings
 
-        #need to get beta value to determine volatility
+        # Converting textual numbers to floats
+        market_cap = short_text_to_float(stock.get_market_cap())
+        if market_cap > 200000000000.0:
+            print("Mega Cap")
+        elif market_cap > 10000000000.0:
+            print("Large Cap")
+        elif market_cap > 2000000000.0:
+            print("Mid Cap")
+        elif market_cap > 300000000.0:
+            print("Small Cap")
+        elif market_cap > 50000000.0:
+            print("Micro Cap")
+        else:
+            print("Nano Cap")
 
-        #actual EPS vs next quarter estimated EPS - predict imminent stock jump or crash
+        print("Market Capitalization: " + num_to_short_text(market_cap))
 
-        #find the formula to calculate future theoretical earnings
+        print(line_separator)
 
-        # market_cap = float(yahoo.get_market_cap())
-        # if market_cap > 200000000000.0:
-        #     print("Mega Cap, Market Capitalization: " + str(market_cap))
-        # elif market_cap > 10000000000.0 and market_cap < 200000000000.0:
-        #     print("Large Cap, Market Capitalization: " + str(market_cap))
-        # elif market_cap > 2000000000.0 and market_cap < 10000000000.0:
-        #     print("Mid Cap, Market Capitalization: " + str(market_cap))
-        # elif market_cap > 300000000.0 and market_cap < 2000000000.0:
-        #     print("Small Cap, Market Capitalization: " + str(market_cap))
-        # elif market_cap > 50000000.0 and market_cap < 300000000.0:
-        #     print("Micro Cap, Market Capitalization: " + str(market_cap))
-        # elif market_cap < 50000000.0:
-        #     print("Nano Cap, Market Capitalization: " + str(market_cap))
-        print(5 * '-----')
-        print('\n')
 
-def exit_program():
-    """exit program"""
-    print("Exiting Program")
-    exit()
+def num_to_short_text(num):
+    if num > 1000000000000:
+        return "%.2f" % (num / 1000000000000) + "T"
+
+    if num > 1000000000:
+        return "%.2f" % (num / 1000000000) + "B"
+
+    if num > 1000000:
+        return "%.2f" % (num / 1000000) + "M"
+
+    # num is already short
+    return "%.2f" % num
+
+
+def short_text_to_float(raw_num):
+    str_num = str(raw_num)
+
+    if str_num.endswith('T'):
+        return float(str_num.split('T')[0]) * 1000000000000
+
+    if str_num.endswith('B'):
+        return float(str_num.split('B')[0]) * 1000000000
+
+    if str_num.endswith('M'):
+        return float(str_num.split('M')[0]) * 1000000
+
+    # str_num is already int
+    return float(raw_num)
 
 if __name__ == '__main__':
-    # yahoo = Share('OHI')
-    # print(yahoo.get_earnings_share())
-    # print(yahoo.get_EPS_estimate_next_quarter())
+    print("Starting program")
+    options = [import_tickers, manual_tickers, run_analysis, andrews_algo]
+
     while True:
-        menu()
+        print(line_separator + "\n\tM A I N - M E N U" + line_separator)
+
+        for option in options:
+            print(str(options.index(option)) + ". " + option.__name__)
+
+        print(line_separator)
+
+        selection = int(raw_input('Enter your choice: '))
+
+        if selection < len(options):
+            options[selection]()
+            sleep(2)
+
+        else:
+            print("Exiting program")
+            exit()
